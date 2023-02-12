@@ -8,3 +8,22 @@ replaced by the current date.
 
 Note that everything that matches the regular expression `\d{4}-\d{2}-\d{2}` is considered an ISO date here for
 simplicity.
+
+## Example
+Running 
+```bash
+echo '{"date": "2022-01-01"}' | fix-iso-dates --min-date 2023-02-12
+```
+or
+```bash
+echo '{"date": "2022-01-01"}' | fix-iso-dates -m 2023-02-12
+```
+will print this to standard output:
+```json
+{"date": "2023-02-12"}
+```
+The command
+```bash
+echo '{"date": "2022-01-01"}' | fix-iso-dates
+```
+will output the same if 2023-02-12 happens to be the current date.
