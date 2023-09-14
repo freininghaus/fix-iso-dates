@@ -15,7 +15,7 @@ jobs:
       matrix:
         platform:
           - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu  }
-          #- { os: macos-latest , target: x86_64-apple-darwin       }
+          - { os: macos-latest , target: x86_64-apple-darwin       }
     runs-on: ${{ matrix.platform.os }}
     steps:
       - name: Checkout repository
@@ -36,10 +36,13 @@ jobs:
         run: strip target/${{ matrix.platform.target }}/release/fix-iso-dates
       - name: Compress binary
         run: |
-          mv target/${{ matrix.platform.target }}/release/fix-iso-dates .
+          mv target/${{ matrix.platform.target }}/release/fix-iso-dates ./
           zip -X fix-iso-dates-${{ matrix.platform.target }}.zip fix-iso-dates
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
           name: fix-iso-dates-${{ matrix.platform.target }}.zip
           path: fix-iso-dates-${{ matrix.platform.target }}.zip
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*.zip"
