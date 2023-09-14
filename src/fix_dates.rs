@@ -18,7 +18,7 @@ fn fix_dates_in_byte_slice(mut data: &mut [u8], min_date: &[u8]) {
 }
 
 
-pub fn fix_dates(input: &mut (impl Read + ?Sized), output: &mut impl Write, min_date: &[u8]) {
+pub fn fix_dates(input: &mut impl Read, output: &mut impl Write, min_date: &[u8]) {
     // We delegate the actual work to a function with customizable buffer size.
     // This makes testing issues with ISO dates spanning buffer size boundaries easier.
     fix_dates_with_buffer_size(input, output, min_date, 64 * 1024)
@@ -41,7 +41,7 @@ fn fix_dates_with_buffer_size(input: &mut (impl Read + ?Sized), output: &mut imp
             break;
         }
 
-        data_end = data_end + read_size;
+        data_end += read_size;
 
         fix_dates_in_byte_slice(&mut buffer[..data_end], min_date);
 
@@ -66,10 +66,10 @@ mod tests {
 
     fn byte_slice_test_helper(min_date: &[u8], input: &[u8], expected: &[u8]) {
         let mut data = input.to_vec();
-        fix_dates_in_byte_slice(&mut data, &min_date);
+        fix_dates_in_byte_slice(&mut data, min_date);
 
         // print differences in results as strings if possible
-        match (from_utf8(&data), from_utf8(&expected)) {
+        match (from_utf8(&data), from_utf8(expected)) {
             (Ok(data), Ok(expected)) => assert_eq!(data, expected),
             (_, _) => assert_eq!(data, expected)
         }
@@ -101,12 +101,12 @@ mod tests {
         let mut output: Vec<u8> = Vec::new();
 
         match buffer_size {
-            None => fix_dates(&mut &(input[..]), &mut output, &min_date),
-            Some(size) => fix_dates_with_buffer_size(&mut &(input[..]), &mut output, &min_date, size)
+            None => fix_dates(&mut &(input[..]), &mut output, min_date),
+            Some(size) => fix_dates_with_buffer_size(&mut &(input[..]), &mut output, min_date, size)
         }
 
         // print differences in results as strings if possible
-        match (from_utf8(&output), from_utf8(&expected)) {
+        match (from_utf8(&output), from_utf8(expected)) {
             (Ok(output), Ok(expected)) => assert_eq!(output, expected),
             (_, _) => assert_eq!(output, expected)
         }
